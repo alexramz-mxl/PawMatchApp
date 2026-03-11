@@ -4,27 +4,31 @@
 //
 //  Created by uvminstaller on 11/02/26.
 //
+
 import SwiftUI
 
 struct PetProfileCard: View {
     
     
-    @Binding var pet: Pet
+        var pet: Pet
     @State private var showPaw: Bool = false
      
     var body: some View {
         
         VStack {
             ZStack {
-                Image(pet.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 420)
-                    .clipped()
-                    .cornerRadius(20)
                 
-                if showPaw {
+                if let data = pet.imageData,
+                   let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 420)
+                        .clipped()
+                        .cornerRadius(20)
+                    
+                } else {
                     Image(systemName: "pawprint.fill")
                         .font(.system(size: 100))
                         .foregroundColor(.black)

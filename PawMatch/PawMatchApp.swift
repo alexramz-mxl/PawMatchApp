@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import SwiftData
+
 
 @main
 struct PawMatchApp: App {
+    
+    
+    @State private var session = SessionManager()
+    
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            if session.isLoggedIn {
+                HomeView(user: session.currentUser!)
+            } else {
+                LoginView()
+            }
         }
+        .environmentObject(session)
+        .modelContainer(for: [User.self, Pet.self])
     }
 }

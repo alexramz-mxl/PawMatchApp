@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ProfileView: View {
     var user: User
-    @State private var navigateToSettings: Bool = false
+    @Environment(\.modelContext) private var modelContext
+    
+    @State private var showAddPet = false
+    @State private var showEditProfile = false
     
     var body: some View {
         NavigationStack {
@@ -22,28 +26,28 @@ struct ProfileView: View {
                 .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 25) {
+                    VStack(spacing: 30) {
                         
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 120, height: 120)
-                            .foregroundColor(.appPink)
-                            .shadow(radius: 10)
+                        VStack {
+                            
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 120, height: 120)
+                                .foregroundColor(.appPink)
+                                .shadow(radius: 10)
+                            
+                            Text(user.fullName)
+                                .font(.title)
+                                .bold()
+                                .foregroundColor(.textGray)
+                            
+                            Text(user.email)
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                        }
                         
-                        Text(user.fullName)
-                            .font(.title)
-                            .bold()
-                            .foregroundColor(.textGray)
-                        
-                        Text(user.email)
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                        
-                        Divider()
-                            .background(Color.white.opacity(0.5))
-                        
-                        VStack(spacing: 10) {
+                        VStack(spacing: 8) {
                             
                             Text("Account Type")
                                 .font(.headline)
@@ -53,46 +57,56 @@ struct ProfileView: View {
                                 .font(.body)
                                 .foregroundColor(user.subscriptionStatus == .premium ? .yellow : .white
                                 )
-                            if user.subscriptionStatus == .free {
-                                Button("Upgrade to premium") {
-                                    navigateToSettings = true
-                                }
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.white)
-                                .foregroundColor(.appPink)
-                                .cornerRadius(15)
+                            if user.subscriptionStatus == .premium {
+                                Text("Premium subscription active")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
                             }
                         }
                         
                         Divider()
-                            .background(Color.white.opacity(0.5))
+                            .background(Color.black.opacity(0.5))
                         
                         VStack(alignment: .leading, spacing: 15) {
                             
-                            Text("Your currently registered pets")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            Text("Registered pets: .\(user.pets.count)")
-                                .foregroundColor(.white.opacity(0.9))
-                            
-                            Text("Max allowed: .\(user.maxPetsAllowed)")
-                                .foregroundColor(.white.opacity(0.9))
-                            
-                            Text(user.isSubscriptionActive ? "Subscription Active" : "Subscription Inactive")
-                                .foregroundColor(user.isSubscriptionActive ?.green : .red)
+                            HStack {
+                                Text("Your currently registered pets")
+                                    .font(.headline)
+                                    .foregroundColor(.appPink)
+                                
+                                Spacer()
+                                
+                                Text("Registered pets: \(user.pets.count)/\(user.maxPetsAllowed)")
+                                    .foregroundColor(.appOrange.opacity(0.9))
+                            }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        Spacer(minLength: 40)
+                        Divider()
+                            .background(Color.black.opacity(0.5))
+                        
+                        VStack(alignment: .leading, spacing: 15) {
+                            
+                            HStack {
+                                Text("You currently registered pets \(user.pets.count)/\(user.maxPetsAllowed)")
+                                    .font(.headline)
+                                    .foregroundColor(.appOrange.opacity(0.9))
+                                
+                                Spacer()
+                                
+                                Button {
+                                    showAddPet = true
+                                } label: {
+                                    Label("Add Pet", systemImage: "plus")
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
                     }
-                    .padding()
                 }
             }
-            .navigationDestination(isPresented: $navigateToSettings) {
-                SettingsView(user: user)
-            }
+        }
+        .sheet(isPresented: $showAddPet) {
+            AddPetView(user: user)
         }
     }
 }

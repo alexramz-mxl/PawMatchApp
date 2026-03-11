@@ -6,48 +6,55 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-    @State private var pets: [Pet] = [
-    Pet(
-        name: "Chispita",
-        breed: "Border Collie",
-        age: 2,
-        petDescription:"Loves parks, treats and long walks around the beach she is a very playful and energetic dog.",
-        imageName: "dog1",
-        likes: 0
-    ),
-    Pet(
-        name: "Bruno",
-        breed: "Poodle",
-        age: 5,
-        petDescription:"Loves parks, treats and long walks around the beach she is a very playful and energetic dog.",
-        imageName: "dog2",
-        likes: 0
-    )
-]
+    @Query var pets: [Pet]
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var session: SessionManager
+    
     @State private var currentIndex: Int = 0
     @State private var showMatch: Bool = false
     
     var body: some View {
         ZStack {
-            LinearGradient (
-                colors: [Color.pink.opacity(0.3), Color.orange.opacity(0.3)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
             
-            ForEach(currentIndex..<pets.count, id: \.self) { index in
-                PetProfileCard(pet: $pets[index])
-                    .offset(x: 0, y: Double(index - currentIndex) * 10)
-                    .scaleEffect(1.0 - CGFloat( index - currentIndex) * 0.05)
-                    .zIndex(Double(pets.count - index))
+            LinearGradient( colors: [Color.pink.opacity(0.3), Color.orange.opacity(0.3)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            
+        VStack {
+            HStack {
+                Text("Hello, \(session.currentUser?.firstName ?? "")")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+                
+                if session.currentUser?.isSubscriptionActive == true {
+                    Text("You're a premium user!")
+                        .font(.caption)
+                        .padding(6)
+                        .background(.yellow.opacity(0.2))
+                        .clipShape(Capsule())
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            
+            Spacer()
+
+            ZStack {
+                if !pets.isEmpty {
+                    PetProfileCard(pet: pets[currentIndex])
+                }
             }
             
+            Spacer()
+            
             if currentIndex < pets.count {
-                VStack {
-                    Spacer()
                     Button(action: {
                         givePaw()
                     }) {
@@ -60,17 +67,22 @@ struct ContentView: View {
                         }
                         .padding()
                         .frame(width:180)
-                        .background(LinearGradient(colors: [Color.pink, Color.orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .background(
+                            LinearGradient(
+                                colors: [Color.pink, Color.orange],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                         .foregroundColor(.white)
                         .cornerRadius(25)
-                        .shadow(radius: 5)
+                        .shadow(radius: 5 )
                     }
                     .padding(.bottom, 50)
                 }
-                .transition(.move(edge: .bottom))
             }
             
-            if showMatch {
+            if showMatch && currentIndex < pets.count {
                 MatchView(petName: pets[currentIndex].name)
                     .transition(.scale.combined(with: .opacity))
                     .zIndex(10)
@@ -78,11 +90,15 @@ struct ContentView: View {
         }
         .animation(.easeInOut, value: currentIndex)
         .animation(.easeInOut, value: showMatch)
+        .onAppear {
+            insertSamplePetsIfNeeded()
+        }
     }
     
     func givePaw() {
+        guard currentIndex < pets.count else { return }
+        
         pets[currentIndex].likes += 1
-        UserDefaults.standard.set(pets[currentIndex].likes, forKey: pets[currentIndex].name)
         
         if pets[currentIndex].likes % 3 == 0 {
             withAnimation {
@@ -104,6 +120,29 @@ struct ContentView: View {
             currentIndex += 1
         } else {
             currentIndex = 0
+        }
+    }
+
+    func insertSamplePetsIfNeeded() {
+        if pets.isEmpty {
+            let pet1 = Pet(
+                name: "Chispita",
+                breed: "Border Collie",
+                age: 2,
+                petDescription: "Loves parks treats and long walks around the beach",
+                imageData: nil,
+                likes: 0
+        )
+            let pet2 = Pet(
+                name: "Bruno",
+                breed: "Schnauzer",
+                age: 3,
+                petDescription: "Sometimes grumpy but loyal and calm companion",
+                imageData: nil,
+                likes: 0
+                )
+            modelContext.insert(pet1)
+            modelContext.insert(pet2)
         }
     }
 }

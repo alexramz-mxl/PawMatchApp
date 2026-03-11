@@ -24,7 +24,7 @@ final class User {
     var pets: [Pet] = []
     
     var maxPetsAllowed: Int {
-        subscriptionStatus == .premium ? 5 : 3
+        isSubscriptionActive ? 5 : 3
     }
     
     var isSubscriptionActive: Bool {

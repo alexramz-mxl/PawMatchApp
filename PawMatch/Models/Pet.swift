@@ -15,7 +15,7 @@ final class Pet {
     var breed: String
     var age: Int
     var petDescription: String
-    var imageName: String
+    var imageData: Data?
     var likes: Int
     var isBoostActive: Bool
     var boostExpirationDate: Date?
@@ -34,7 +34,7 @@ final class Pet {
         breed: String,
         age: Int,
         petDescription: String,
-        imageName: String,
+        imageData: Data? = nil,
         likes: Int = 0,
         isBoostActive: Bool = false,
         boostExpirationDate: Date? = nil,
@@ -45,7 +45,7 @@ final class Pet {
         self.breed = breed
         self.age = age
         self.petDescription = petDescription
-        self.imageName = imageName
+        self.imageData = imageData
         self.likes = likes
         self.isBoostActive = isBoostActive
         self.boostExpirationDate = boostExpirationDate

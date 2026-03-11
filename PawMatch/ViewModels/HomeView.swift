@@ -20,6 +20,10 @@ struct HomeView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.circle")
                 }
+            CategoriesView()
+                .tabItem {
+                    Label("Categories", systemImage: "list.bullet")
+                }
             SettingsView(user: user)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
