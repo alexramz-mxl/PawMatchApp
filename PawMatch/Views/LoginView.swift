@@ -72,6 +72,10 @@ struct LoginView: View {
                                     )
                                 )
                                 .offset(y: -2)
+                            Text("Find pets and make friends!")
+                            .font(headline)
+                            .foregorundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                         }
                         HStack() {
                             TextField("Email address", text: $email)
